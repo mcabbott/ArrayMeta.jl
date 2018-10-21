@@ -16,16 +16,16 @@ Type Domain `promote_op`
 
 The first argument is the type of the function
 """
-@generated function promote_op_t{F,T}(::Type{F}, ::Type{T})
+@generated function promote_op_t(::Type{F}, ::Type{T}) where {F,T}
     :(_promote_op_t(F, $(T.parameters...)))
 end
 
 # Dummy type to imitate a splatted function application
 # This is passed into Inference.return_type
-immutable _F{G}
+struct _F{G}
     g::G
 end
-(f::_F{G}){G}(x) = f.g(x...)
+(f::_F{G})(x) where {G} = f.g(x...)
 
 f(g) = x->g(x...)
 
@@ -35,7 +35,7 @@ function _promote_op_t(F, T::ANY)
     Core.Inference.return_type(first, G)
 end
 
-const Zip2 = VERSION < v"0.6.0-dev" ? Base.Zip2 : Base.Iterators.Zip2
+const Zip2 = Base.Iterators.Zip2
 
 function _promote_op_t(F, R::ANY, S::ANY)
     G = Tuple{Base.Generator{Zip2{Tuple{R},Tuple{S}},_F{F}}}
@@ -46,7 +46,7 @@ function _promote_op_t(F, R::ANY, S::ANY, T::ANY...)
     _promote_op_t(F, _promote_op_t(F, R, S), T...)
 end
 
-@pure function eltypes{T<:Tuple}(::Type{T})
+@pure function eltypes(::Type{T}) where T<:Tuple
     Tuple{map(eltype, T.parameters)...}
 end
 
@@ -55,7 +55,7 @@ Type Domain `promote_op`
 
 The first argument is the type of the function
 """
-@pure @generated function promote_op_t{F,T}(::Type{F}, ::Type{T})
+@pure @generated function promote_op_t(::Type{F}, ::Type{T}) where {F,T}
     :(_promote_op_t(F, $(T.parameters...)))
 end
 
@@ -65,31 +65,31 @@ end
 Returns an output array type for the result of applying a function of type `F`
 on arrays of type `Ts`.
 """
-@pure function promote_arraytype{F}(::Type{F}, T...)
+@pure function promote_arraytype(::Type{F}, T...) where F
     length(T) == 1 && return T[1]
     promote_arraytype(F, promote_arraytype(F, T[1]), T[2:end]...)
 end
 
-@pure function promote_arraytype{F, T<:Array, S<:Array}(::Type{F}, ::Type{T}, ::Type{S})
+@pure function promote_arraytype(::Type{F}, ::Type{T}, ::Type{S}) where {F, T<:Array, S<:Array}
     Array{_promote_op_t(F, eltype(T), eltype(S)), max(ndims(T), ndims(S))}
 end
 
-idxtype{X,I}(::Type{SparseMatrixCSC{X,I}}) = I
-@pure function promote_arraytype{F, T<:SparseMatrixCSC, S<:SparseMatrixCSC}(::Type{F}, ::Type{T}, ::Type{S})
+idxtype(::Type{SparseMatrixCSC{X,I}}) where {X,I} = I
+@pure function promote_arraytype(::Type{F}, ::Type{T}, ::Type{S}) where {F, T<:SparseMatrixCSC, S<:SparseMatrixCSC}
     SparseMatrixCSC{_promote_op_t(F, eltype(T), eltype(S)),
                     promote_type(idxtype(T), idxtype(S))}
 end
 
-@pure function promote_arraytype{T<:Array, S<:SparseMatrixCSC}(::Type{typeof(+)}, ::Type{T}, ::Type{S})
+@pure function promote_arraytype(::Type{typeof(+)}, ::Type{T}, ::Type{S}) where {T<:Array, S<:SparseMatrixCSC}
     Array{_promote_op_t(F, eltype(T), eltype(S))}
 end
 
-@pure function promote_arraytype{T<:Array, S<:SparseMatrixCSC}(::Type{typeof(*)}, ::Type{T}, ::Type{S})
+@pure function promote_arraytype(::Type{typeof(*)}, ::Type{T}, ::Type{S}) where {T<:Array, S<:SparseMatrixCSC}
     SparseMatrixCSC{_promote_op_t(F, eltype(T), eltype(S)),
                     promote_type(idxtype(T), idxtype(S))}
 end
 
-@pure function promote_arraytype{T<:SparseMatrixCSC, S<:Array}(::Type{typeof(+)}, ::Type{T}, ::Type{S})
+@pure function promote_arraytype(::Type{typeof(+)}, ::Type{T}, ::Type{S}) where {T<:SparseMatrixCSC, S<:Array}
     Array{_promote_op_t(F, eltype(T), eltype(S))}
 end
 
@@ -98,11 +98,11 @@ end
 
 Identity value for reducing a collection of `T` with function `f`
 """
-reduction_identity{T}(f::Union{typeof(+), typeof(-)}, ::Type{T}) = zero(T)
-reduction_identity{T}(f::typeof(min), ::Type{T}) = typemax(T)
-reduction_identity{T}(f::typeof(max), ::Type{T}) = typemin(T)
-reduction_identity{T}(f::typeof(*), ::Type{T}) = one(T)
-reduction_identity{T}(f::typeof(push!), ::Type{T}) = T[]
+reduction_identity(f::Union{typeof(+), typeof(-)}, ::Type{T}) where {T} = zero(T)
+reduction_identity(f::typeof(min), ::Type{T}) where {T} = typemax(T)
+reduction_identity(f::typeof(max), ::Type{T}) where {T} = typemin(T)
+reduction_identity(f::typeof(*), ::Type{T}) where {T} = one(T)
+reduction_identity(f::typeof(push!), ::Type{T}) where {T} = T[]
 
 function merge_dictofvecs(dicts...)
     merged_dict = Dict()

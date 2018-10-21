@@ -1,5 +1,5 @@
 using ArrayMeta
-using Base.Test
+using Test
 
 import ArrayMeta: indicesinvolved
 @testset "utilities" begin

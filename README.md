@@ -74,7 +74,7 @@ The examples here are on 1 and 2 dimensional arrays but the notation trivially g
 As an example of how this aids genericness, potentially, Base can define the `reducedim` (for example) function on an n-dimensional array as:
 
 ```julia
-@generated function reducedim{dim}(f, X::AbstractArray, ::Val{dim})
+@generated function reducedim(f, X::AbstractArray, ::Val{dim}) where dim
     idx_in  = Any[Symbol("i$n") for n=1:ndims(X)]
     idx_out = copy(idx_in)
     idx_out[dim] = 1

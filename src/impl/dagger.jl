@@ -15,7 +15,7 @@ function onchunks(X::Map)
     Map(delayed((x...) -> Map(f, x)), map(onchunks, X.arrays))
 end
 
-function arrayop!{D<:DArray}(::Type{D}, t::Assign)
+function arrayop!(::Type{D}, t::Assign) where D<:DArray
     lhs = onchunks(t.lhs)
     rhs = onchunks(t.rhs)
 
@@ -32,7 +32,7 @@ function arrayop!{D<:DArray}(::Type{D}, t::Assign)
     t.lhs.array
 end
 
-@generated function arrayop_treereduce{L,R,F,E}(op::Assign{L,R,F,E})
+@generated function arrayop_treereduce(op::Assign{L,R,F,E}) where {L,R,F,E}
 
     rspaces = index_spaces(:(op.rhs), R)
     lspaces = index_spaces(:(op.lhs), L)
@@ -87,7 +87,7 @@ function Base.indices(x::DArray, i)
     Dagger.DomainBlocks((idxs.start[i],), (idxs.cumlength[i],))
 end
 
-function allocarray{T,N}(::Type{DArray{T,N}}, default, idxs...)
+function allocarray(::Type{DArray{T,N}}, default, idxs...) where {T,N}
     dmnchunks = DomainBlocks(map(i->1, idxs),
                              map(i->isa(i, DomainBlocks) ?
                                  i.cumlength[1] : (length(i),), idxs))
