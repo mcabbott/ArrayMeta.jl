@@ -28,13 +28,13 @@ Y = ones(3,4)
 @arrayop Z[i,j] := X[j,i]
 
 # elementwise 1-arg (equivalent to sin.(X))
-@arrayop Z[i,j] := sin(X[i,j])
+@arrayop Z[i,j] := sin(X[i,j]) # ERROR: InexactError
 
 # elementwise 2-args (equivalent to X .+ Y')
 @arrayop Z[i,j] := X[i,j] + Y[j,i]
 
 # elementwise with a constant (equivalent to X .+ (im .* Y'))
-@arrayop Z[i,j] := X[i,j] + im * Y[j,i]
+@arrayop Z[i,j] := X[i,j] + im * Y[j,i] # ERROR: MethodError: no method matching index_spaces(...
 
 # reduce (default +-reduce). Note: returns a 0-dimensional array
 # NOTE: any dimension that is left out in the LHS of the expression
@@ -155,11 +155,12 @@ The task of `arrayop!` is to act as a generated function which returns the code 
 
 Jutho's TensorOperations.jl has inspired this package a whole lot. However, its codebase is tailored to work specifically on tensors of real and complex numbers, their contraction, transposition, conjugation and multiplication with scalars and it does that very well. This package aims to cover all of those features in a more general framework. Notable additions:
 
-- Works on arrays of any type
+- Works on arrays of any type.
 - You can use any Julia function for combining arrays and reducing dimensions, and any constants as arguments (as opposed to allowing only scalar multiplication or offsets)
 - Supports indexing where some dimensions can be constants, as in:
 ```julia
 @arrayop y[1, j] := x[i, j]
 ```
 to support operations like `reducedim`.
+- Supports summing over indices which appear any number of times, not exactly twice. 
 - Finally, it has a dispatch system to pick different implementations for different array types. `Dagger` array operations have been implemented as an example.

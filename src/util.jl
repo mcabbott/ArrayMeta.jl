@@ -11,17 +11,18 @@ function indicesinvolved(expr)
 end
 
 
-"""
-Type Domain `promote_op`
-
-The first argument is the type of the function
-"""
-@generated function promote_op_t(::Type{F}, ::Type{T}) where {F,T}
-    :(_promote_op_t(F, $(T.parameters...)))
-end
+# Duplicate?
+# """
+# Type Domain `promote_op`
+#
+# The first argument is the type of the function
+# """
+# @generated function promote_op_t(::Type{F}, ::Type{T}) where {F,T}
+#     :(_promote_op_t(F, $(T.parameters...)))
+# end
 
 # Dummy type to imitate a splatted function application
-# This is passed into Inference.return_type
+# This is passed into Inference.return_type (--> Compiler.return_type in v0.7)
 struct _F{G}
     g::G
 end
@@ -30,19 +31,19 @@ end
 f(g) = x->g(x...)
 
 # the equivalent to Base._promote_op
-function _promote_op_t(F, T::ANY)
+function _promote_op_t(F, @nospecialize T)
     G = Tuple{Base.Generator{Tuple{T},F}}
-    Core.Inference.return_type(first, G)
+    Core.Compiler.return_type(first, G)
 end
 
 const Zip2 = Base.Iterators.Zip2
 
-function _promote_op_t(F, R::ANY, S::ANY)
+function _promote_op_t(F, @nospecialize(R), @nospecialize(S))
     G = Tuple{Base.Generator{Zip2{Tuple{R},Tuple{S}},_F{F}}}
-    Core.Inference.return_type(first, G)
+    Core.Compiler.return_type(first, G)
 end
 
-function _promote_op_t(F, R::ANY, S::ANY, T::ANY...)
+function _promote_op_t(F, @nospecialize(R), @nospecialize(S), @nospecialize T...)
     _promote_op_t(F, _promote_op_t(F, R, S), T...)
 end
 
@@ -73,6 +74,8 @@ end
 @pure function promote_arraytype(::Type{F}, ::Type{T}, ::Type{S}) where {F, T<:Array, S<:Array}
     Array{_promote_op_t(F, eltype(T), eltype(S)), max(ndims(T), ndims(S))}
 end
+
+using SparseArrays
 
 idxtype(::Type{SparseMatrixCSC{X,I}}) where {X,I} = I
 @pure function promote_arraytype(::Type{F}, ::Type{T}, ::Type{S}) where {F, T<:SparseMatrixCSC, S<:SparseMatrixCSC}

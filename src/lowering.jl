@@ -108,8 +108,8 @@ end
 
 function lower(expr, reducefn, default=nothing)
     lhs, rhs, alloc = @match expr begin
-        (lhs_ = rhs_) => lhs, rhs, false
-        (lhs_ := rhs_) => lhs, rhs, true
+        (lhs_ = rhs_) => (lhs, rhs, false)
+        (lhs_ := rhs_) => (lhs, rhs, true)
         _ => error("Expression is not of the form LHS = RHS")
     end
     lidxs = indicesinvolved(lhs)
@@ -203,11 +203,11 @@ end
             end
 
             dim = first(rspaces[sym])
-            dimsz = :(indices($(dim[3]), $(dim[2])))
+            dimsz = :(axes($(dim[3]), $(dim[2])))
             push!(dims, dimsz)
         else
             # Indexed by a constant
-            push!(dims, :(indices($(indexing_expr(:(t.lhs), k, i)), 1)))
+            push!(dims, :(axes($(indexing_expr(:(t.lhs), k, i)), 1)))
         end
     end
 

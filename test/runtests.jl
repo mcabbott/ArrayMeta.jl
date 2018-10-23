@@ -116,11 +116,11 @@ import ArrayMeta: @arrayop
     @test @arrayop(_[] := X[i,j], *)[] == prod(X)
 
     # reducedim default (+)
-    @test @arrayop(_[1, j] := X[i,j]) == sum(X, 1)
-    @test @arrayop(_[i, 1] := X[i,j]) == sum(X, 2)
+    @test @arrayop(_[1, j] := X[i,j]) == sum(X, dims=1)
+    @test @arrayop(_[i, 1] := X[i,j]) == sum(X, dims=2)
 
     # reducedim with function
-    @test @arrayop(_[1, j] := X[i,j], *) == prod(X, 1)
+    @test @arrayop(_[1, j] := X[i,j], *) == prod(X, dims=1)
 
     # broadcast
     y = [1, 2, 3, 4]
@@ -163,11 +163,11 @@ Base.:(==)(a::ArrayMeta.DArray, b::Array) = collect(a) == b
     @test collect(@arrayop(_[1,1] := dX[i,j], *)) |> first == prod(X)
 
     # reducedim default (+)
-    @test @arrayop(_[1, j] := dX[i,j]) == sum(X, 1)
-    @test @arrayop(_[i, 1] := dX[i,j]) == sum(X, 2)
+    @test @arrayop(_[1, j] := dX[i,j]) == sum(X, dims=1)
+    @test @arrayop(_[i, 1] := dX[i,j]) == sum(X, dims=2)
 
     # reducedim with function
-    @test @arrayop(_[1, j] := dX[i,j], *) == prod(X, 1)
+    @test @arrayop(_[1, j] := dX[i,j], *) == prod(X, dims=1)
 
     # broadcast
     y = [1, 2, 3, 4]

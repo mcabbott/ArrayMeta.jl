@@ -24,12 +24,12 @@ function arrayop_body(name, ::Type{A},
     for (sym, spaces) in index_spaces(name, op) # sort this based on # of potential cache misses
         if length(spaces) > 1
             # check dimensions for equality
-            equal_dims = [:(indices($(d[3]), $(d[2]))) for d in spaces]
+            equal_dims = [:(axes($(d[3]), $(d[2]))) for d in spaces]
             checks = :($checks; @assert allequal($(equal_dims...),))
         end
         T,dim,nm = first(spaces)
         sym_range = Symbol("$(sym)_range")
-        push!(input_ranges, sym_range => :(indices($nm, $dim)))
+        push!(input_ranges, sym_range => :(axes($nm, $dim)))
         expr = :(for $sym in $sym_range
                     $expr
                 end)
