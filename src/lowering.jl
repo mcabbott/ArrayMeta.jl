@@ -5,7 +5,7 @@ export @lower, @arrayop
 import Base: eltype
 
 """
-`Indexing(A, (idx...))`
+    Indexing(A, (idx...))
 
 Represents indexing over an N dimensional array A, with N `idx`
 Each index could be either:
@@ -28,7 +28,7 @@ struct IndexConst{T}
 end
 
 """
-`Map(f, (arrays...))`
+    Map(f, (arrays...))
 
 Represents application of function `f` on corresponding elements of `arrays`.
 
@@ -59,7 +59,7 @@ end
 
 eltype(::Type{ConstArg{T}}) where {T} = T
 """
-`Assign(lhs, rhs)`
+    Assign(lhs, rhs)
 
 represents a tensor operation. `lhs` is an `Indexing` representing the LHS of the tensor expression
 `rhs` isa `Union{Indexing, Map}`
@@ -134,7 +134,7 @@ macro lower(expr, reducefn=+, default=nothing)
 end
 
 """
-`arrayop!(t::Assign)`
+    arrayop!(t::Assign)
 
 Perform a tensor operation
 """
