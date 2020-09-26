@@ -36,7 +36,7 @@ function _promote_op_t(F, @nospecialize T)
     Core.Compiler.return_type(first, G)
 end
 
-const Zip2 = Base.Iterators.Zip2
+Zip2{I1,I2} = Base.Iterators.Zip{Tuple{I1,I2}}
 
 function _promote_op_t(F, @nospecialize(R), @nospecialize(S))
     G = Tuple{Base.Generator{Zip2{Tuple{R},Tuple{S}},_F{F}}}

@@ -45,7 +45,7 @@ end
         valx = gensym("valx")
         valy = gensym("valy")
         expr = quote
-            Dagger.treereduce(indices($nm, $dim)) do x, y
+            Dagger.treereduce(axes($nm, $dim)) do x, y
                 x, y
                 $sym = x
 
@@ -69,7 +69,7 @@ end
         end
         T,dim,nm = first(spaces)
         expr = quote
-            for $sym = indices($nm, $dim)
+            for $sym = axes($nm, $dim)
                 $expr
             end
         end
@@ -78,12 +78,12 @@ end
     :($checks; $expr; op.lhs.array)
 end
 
-function Base.indices(x::DArray)
+function Base.axes(x::DArray)
     Dagger.domainchunks(x)
 end
 
-function Base.indices(x::DArray, i)
-    idxs = indices(x)
+function Base.axes(x::DArray, i)
+    idxs = axes(x)
     Dagger.DomainBlocks((idxs.start[i],), (idxs.cumlength[i],))
 end
 

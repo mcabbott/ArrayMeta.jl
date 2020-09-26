@@ -132,6 +132,7 @@ import ArrayMeta: @arrayop
     @test @arrayop(_[i, j] := X[i,k] * Y[k,j]) == X*Y
 end
 
+#=
 Base.:(==)(a::ArrayMeta.DArray, b::Array) = collect(a) == b
 
 @testset "@arrayop - Dagger" begin
@@ -154,7 +155,7 @@ Base.:(==)(a::ArrayMeta.DArray, b::Array) = collect(a) == b
     @test @arrayop(_[i,j] := dX[i,j] + dY[j,i]) == X + Y'
 
     # elementwise with const
-    #@test @arrayop(_[] := 2 * X[i,j])[] == sum(2.*X)
+    @test @arrayop(_[] := 2 * X[i,j])[] == sum(2.*X)
 
     # reduce default (+)
     @test collect(@arrayop(_[1,1] := dX[i,j])) |> first == sum(X)
@@ -180,3 +181,4 @@ Base.:(==)(a::ArrayMeta.DArray, b::Array) = collect(a) == b
     # matmul
     @test @arrayop(_[i, j] := dX[i,k] * dY[k,j], (+), 0.0) == X*Y
 end
+=#

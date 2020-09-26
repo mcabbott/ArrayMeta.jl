@@ -154,7 +154,8 @@ function index_spaces(name, itr::Type{Indexing{X, Idx}}) where {X,Idx}
         if isa(j, Symbol)
             # store mapping from index symbol to "index space" of arrays
             # being iterated over
-            Base.@get! idx_spaces j []
+            # Base.@get! idx_spaces j [] # deprecated, but also not used?
+            get!(()->[], idx_spaces, j)
             push!(idx_spaces[j], (X, dim, :($name.array)))
         end
     end

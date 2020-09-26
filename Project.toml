@@ -1,0 +1,19 @@
+name = "ArrayMeta"
+uuid = "ff776444-5e7a-51eb-9a1c-dda7296cec34"
+version = "0.0.1"
+
+[deps]
+Dagger = "d58978e5-989f-55fb-8d15-ea34adc7bf54"
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+TiledIteration = "06e1c1a7-607b-532d-9fad-de7d9aa2abac"
+
+[compat]
+julia = "1.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
+
